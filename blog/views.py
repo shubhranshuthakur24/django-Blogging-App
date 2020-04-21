@@ -82,9 +82,11 @@ def blog(request):
 
 
 def profile(request):
-    category_count = get_category_count()
+    user= request.user.id
+    author= Author.objects.filter(user_id=user)
+
     most_recent = Post.objects.order_by('-timestamp')[:3]
-    post_list = Post.objects.all()
+    post_list = Post.objects.filter(author_id=user)
     paginator = Paginator(post_list, 2)
     page_request_var = 'page'
     page = request.GET.get(page_request_var)
@@ -95,10 +97,13 @@ def profile(request):
     except EmptyPage:
         paginated_queryset = paginator.page(paginator.num_pages)
     context = {
-        'queryset': paginated_queryset,
+        'queryset': request.user.id,
         'most_recent': most_recent,
         'page_request_var': page_request_var,
-        'category_count': category_count
+        'author': author,
+
+        # 'category_count': category_count,
+        'posts': post_list,
     }
     return render(request, 'profile.html', context)
 
